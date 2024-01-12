@@ -1,78 +1,41 @@
+def calculate_die_index_and_llc(wafer_diameter, die_size, die_shift_vector, reference_die_distance):
+    die_index_and_llc = []
 
-"""
-def find_equidistant_points_along_line(diameter, n):
-    d_step = diameter / (n - 1)
+    num_dies_x = int(wafer_diameter / die_size[0])
+    num_dies_y = int(wafer_diameter / die_size[1])
 
-    equidistant_points = []
-    for i in range(1, n + 1):
-        x_i = (i - 1) * d_step - diameter / 2
-        y_i = 0
+    reference_die_distance_x, reference_die_distance_y = reference_die_distance
 
-        equidistant_points.append((x_i, y_i))
+    for i in range(num_dies_x):
+        for j in range(num_dies_y):
+            die_index = (i, j)
 
-    return equidistant_points
+            llc_x = i * die_size[0] + die_shift_vector[0] + reference_die_distance_x - wafer_diameter / 2
+            llc_y = j * die_size[1] + die_shift_vector[1] + reference_die_distance_y - wafer_diameter / 2
 
-# Example usage:
-diameter = 300
-n = 30
-result = find_equidistant_points_along_line(diameter, n)
-print(result)
+            # Check if the die is fully or partially within the wafer
+            if (
+                -wafer_diameter / 2 <= llc_x <= wafer_diameter / 2 - die_size[0] and
+                -wafer_diameter / 2 <= llc_y <= wafer_diameter / 2 - die_size[1]
+            ):
+                die_index_and_llc.append((die_index, (llc_x, llc_y)))
+            else:
+                # Handle partially valid dies if needed
+                pass
 
-"""
-import math
+    return die_index_and_llc
 
-def read_file_values(filename):
-    wafer_diameter = None
-    n = None
-    angle = None
-    
-    with open(filename, "r") as f:
-        for line in f:
-            key, value = line.strip().split(":")
-            key = key.strip()
-            value = value.strip()
-            
-            if key == "WaferDiameter":
-                wafer_diameter = int(value)
-            elif key == "NumberOfPoints":
-                n = int(value)
-            elif key == "Angle":
-                angle = float(value)
+wafer_diameter = 200
+die_size = (10, 10)
+die_shift_vector = (10, 10)
+reference_die_distance = (25, 25)
 
-    return wafer_diameter, n, angle
+result = calculate_die_index_and_llc(wafer_diameter, die_size, die_shift_vector, reference_die_distance)
 
-# Example usage:
-filename = "Testcase1.txt"
-wafer_diameter, n, angle = read_file_values(filename)
-
-print("Wafer Diameter:", wafer_diameter)
-print("Number of Points:", n)
-print("Angle:", angle)
-
-"""
-diameter = 200
-angle = 150
-n = 31
-"""
+for die in result:
+    print(f"{die[0]}: ({die[1][0]:.4f}, {die[1][1]:.4f})")
 
 
 
-def line(start, stop, num_points):
-    step = (stop - start) / (num_points - 1)
-    return [start + i * step for i in range(num_points)]
 
-def find_equidistant_points_with_angle(diameter, angle, n):
-    r = diameter / 2.0
-    distances = line(-r, r, n)
-    
-    x_coords = [d * math.cos(math.radians(angle)) for d in distances]
-    y_coords = [d * math.sin(math.radians(angle)) for d in distances]
-    
-    return x_coords, y_coords
-
-x, y = find_equidistant_points_with_angle(wafer_diameter, angle, n)
-
-with open("outputtrial.txt", 'w') as file:
-    for i in range(n):
-        file.write(f"({x[i]:.4f}, {y[i]:.4f})\n")
 
